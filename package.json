@@ -1,0 +1,10 @@
+{
+  "name": "finance-tracker",
+  "version": "1.0.0",
+  "description": "Premium Personal Finance Tracker (MERN Stack)",
+  "scripts": {
+    "start:backend": "cd backend && node server.js",
+    "start:frontend": "cd frontend && npm start",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install"
+  }
+}
