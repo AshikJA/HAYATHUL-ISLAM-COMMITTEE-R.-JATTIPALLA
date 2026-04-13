@@ -12,7 +12,7 @@ if (!process.env.JWT_SECRET) {
 }
 
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 15 * 60 * 1000,//15 minutes
   max: 100,
   message: { message: 'Too many requests, please try again later' }
 });
@@ -24,26 +24,31 @@ const templateRoutes = require('./routes/templates');
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/api', apiLimiter);
 
 const User = require('./models/User');
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/finance-tracker')
+mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log('MongoDB Connected');
     
-    const defaultEmail = 'aqwuiop09@gmail.com';
-    const defaultPassword = '987654321';
+    const defaultEmail = process.env.DEFAULT_EMAIL;
+    const defaultPassword = process.env.DEFAULT_PASSWORD;
     
     const existingUser = await User.findOne({ email: defaultEmail });
     if (!existingUser) {
       const defaultUser = new User({ email: defaultEmail, password: defaultPassword });
       await defaultUser.save();
-      console.log('Default user created: aqwuiop09@gmail.com');
+      console.log(`Default user created: ${defaultEmail}`);
     } else {
-      console.log('Default user already exists');
+      console.log(`Default user already exists: ${defaultEmail}`);
     }
   })
   .catch(err => console.log(err));

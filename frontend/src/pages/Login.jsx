@@ -111,17 +111,6 @@ function Login() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError('');
-            }}
-            className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-          >
-            {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
-          </button>
-        </div>
       </div>
     </div>
   );

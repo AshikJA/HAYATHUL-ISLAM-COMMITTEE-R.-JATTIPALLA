@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { AuthContext } from '../context/AuthContext';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 function ViewSingleMonthPage() {
   const { year, month } = useParams();
@@ -152,7 +152,7 @@ function ViewSingleMonthPage() {
     doc.text(`HAYATHUL ISLAM COMMITTEE(R.) JATTIPALLA, SULLIA, D.K`, 14, 20);
     
     doc.setFontSize(14);
-    doc.text(`${monthName} ${year} - Cash Book`, 14, 30);
+    doc.text(`${monthName} ${year} - Ledger Book`, 14, 30);
     
     const tableData = transactions.map(t => [
       formatDate(t.date),
@@ -179,7 +179,7 @@ function ViewSingleMonthPage() {
     doc.setFontSize(14);
     doc.text(`Balance: ${formatNumber(pdfBalance)}`, 14, finalY);
     
-    const filename = `CashBook_${monthName}_${year}.pdf`;
+    const filename = `LedgerBook_${monthName}_${year}.pdf`;
     doc.save(filename);
   };
 

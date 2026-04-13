@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Plus, Pencil, Trash2, X, Edit3, Save, Zap } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
