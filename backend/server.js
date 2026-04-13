@@ -28,6 +28,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.options('*', cors(corsOptions));
+
 if (!process.env.JWT_SECRET) {
   console.error('FATAL: JWT_SECRET is not defined in .env file');
   process.exit(1);
