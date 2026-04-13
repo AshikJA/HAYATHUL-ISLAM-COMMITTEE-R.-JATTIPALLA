@@ -2,20 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import {
-  Wallet,
-  LogOut,
-  Plus,
-  Pencil,
-  Trash2,
-  X,
-  Zap,
-  Edit3,
-  Save
-} from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Edit3, Save, Zap } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -231,19 +221,19 @@ function Transactions() {
   return (
     <div className="min-h-screen bg-slate-50">
 
-      <div className="max-w-7xl mx-auto px-4 py-6 flex gap-6">
+      <div className="max-w-7xl mx-auto px-2 py-4 md:px-4 md:py-6 flex flex-col md:flex-row gap-4 md:gap-6">
         <div className="flex-1">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="bg-indigo-600 text-white px-6 py-4 flex items-center justify-between">
+            <div className="bg-indigo-600 text-white px-3 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
               <div>
-                <p className="text-sm opacity-80">Current Balance</p>
-                <p className={`text-2xl font-bold ${balance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                <p className="text-xs md:text-sm opacity-80">Current Balance</p>
+                <p className={`text-xl md:text-2xl font-bold ${balance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                   {formatCurrency(balance)}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-sm opacity-80">Total Income / Expenses</p>
-                <p className="text-lg font-bold">
+              <div className="text-left md:text-right">
+                <p className="text-xs md:text-sm opacity-80">Total Income / Expenses</p>
+                <p className="text-sm md:text-lg font-bold">
                   <span className="text-emerald-500">{formatCurrency(totalIncome)}</span>
                   {' / '}
                   <span className="text-rose-500">{formatCurrency(totalExpenses)}</span>
@@ -251,7 +241,7 @@ function Transactions() {
               </div>
             </div>
 
-            <div className="border-b border-slate-200 bg-slate-50">
+            <div className="border-b border-slate-200 bg-slate-50 hidden md:block">
               <div className="grid grid-cols-12 gap-2 px-4 py-3 text-sm font-semibold text-slate-600">
                 <div className="col-span-2">Date</div>
                 <div className="col-span-5">Particulars</div>
@@ -259,31 +249,31 @@ function Transactions() {
                 <div className="col-span-2 text-right">Expense</div>
                 <div className="col-span-1 text-center">Action</div>
               </div>
-</div>
+            </div>
 
             {showForm && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="border-b border-slate-200 bg-indigo-50 px-4 py-3 overflow-hidden"
+                className="border-b border-slate-200 bg-indigo-50 px-2 py-2 md:px-4 md:py-3 overflow-hidden"
               >
                 <form onSubmit={handleSubmit}>
                   <div className="grid grid-cols-12 gap-2 items-center">
-                    <div className="col-span-2">
+                    <div className="col-span-12 md:col-span-2">
                       <input
                         type="date"
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm"
+                        className="w-full px-2 py-2 md:px-3 md:py-2 bg-white border border-slate-300 rounded-lg text-sm"
                         required
                       />
                     </div>
-                    <div className="col-span-5 flex gap-2">
+                    <div className="col-span-12 md:col-span-5 flex flex-col md:flex-row gap-2">
                       <select
                         value={formData.type}
                         onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                        className="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm"
+                        className="px-2 py-2 md:px-3 md:py-2 bg-white border border-slate-300 rounded-lg text-sm"
                       >
                         <option value="Income">Income</option>
                         <option value="Expense">Expense</option>
@@ -293,27 +283,27 @@ function Transactions() {
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder="Description"
-                        className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm"
+                        className="flex-1 px-2 py-2 md:px-3 md:py-2 bg-white border border-slate-300 rounded-lg text-sm"
                         required
                       />
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-12 md:col-span-2">
                       <input
                         type="number"
                         value={formData.amount}
                         onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                         placeholder="0"
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-right"
+                        className="w-full px-2 py-2 md:px-3 md:py-2 bg-white border border-slate-300 rounded-lg text-sm text-right"
                         required
                       />
                     </div>
-                    <div className="col-span-2">
+                    <div className="hidden md:block col-span-2">
                       <div className="px-3 py-2 bg-slate-200 rounded-lg text-sm text-right text-slate-400">-</div>
                     </div>
-                    <div className="col-span-1 flex gap-1">
+                    <div className="col-span-12 md:col-span-1 flex gap-1">
                       <button
                         type="submit"
-                        className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
+                        className="flex-1 md:flex-none px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
                       >
                         {editingId ? 'Edit' : 'Add'}
                       </button>
@@ -345,17 +335,31 @@ function Transactions() {
                 transactions.map((transaction, index) => (
                   <div 
                     key={transaction._id}
-                    className={`grid grid-cols-12 gap-2 px-4 py-3 border-b border-slate-100 hover:bg-slate-50 ${
+                    className={`p-3 md:p-0 md:grid md:grid-cols-12 md:gap-2 md:px-4 md:py-3 border-b border-slate-100 hover:bg-slate-50 ${
                       index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'
                     }`}
                   >
-                    <div className="col-span-2 text-sm text-slate-600">
+                    <div className="md:col-span-2 text-sm text-slate-600 mb-1 md:mb-0">
                       {formatDate(transaction.date)}
                     </div>
-                    <div className="col-span-5 text-sm font-medium text-slate-700">
-                      {transaction.description}
+                    <div className="md:col-span-5 text-sm font-medium text-slate-700 mb-1 md:mb-0 flex items-center justify-between">
+                      <span>{transaction.description}</span>
+                      <div className="md:hidden flex gap-1">
+                        <button
+                          onClick={() => handleEdit(transaction)}
+                          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(transaction._id)}
+                          className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="col-span-2 text-right text-sm">
+                    <div className="md:col-span-2 md:text-right text-sm mb-1 md:mb-0">
                       {transaction.type === 'Income' ? (
                         <span className="text-emerald-500 font-semibold">
                           {formatCurrency(transaction.amount)}
@@ -364,7 +368,7 @@ function Transactions() {
                         <span className="text-slate-300">-</span>
                       )}
                     </div>
-                    <div className="col-span-2 text-right text-sm">
+                    <div className="md:col-span-2 md:text-right text-sm mb-1 md:mb-0">
                       {transaction.type === 'Expense' ? (
                         <span className="text-rose-500 font-semibold">
                           {formatCurrency(transaction.amount)}
@@ -373,7 +377,7 @@ function Transactions() {
                         <span className="text-slate-300">-</span>
                       )}
                     </div>
-                    <div className="col-span-1 flex gap-1 justify-center">
+                    <div className="hidden md:flex md:col-span-1 gap-1 justify-center">
                       <button
                         onClick={() => handleEdit(transaction)}
                         className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
@@ -392,8 +396,8 @@ function Transactions() {
               )}
             </div>
 
-            <div className="bg-slate-100 border-t-2 border-indigo-600 px-4 py-3">
-              <div className="grid grid-cols-12 gap-2 text-sm font-bold text-slate-700">
+            <div className="bg-slate-100 border-t-2 border-indigo-600 px-3 py-2 md:px-4 md:py-3">
+              <div className="grid grid-cols-12 gap-2 text-xs md:text-sm font-bold text-slate-700">
                 <div className="col-span-2">TOTAL</div>
                 <div className="col-span-5"></div>
                 <div className="col-span-2 text-right text-emerald-500">{formatCurrency(totalIncome)}</div>
@@ -409,17 +413,18 @@ function Transactions() {
               className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-lg transition-all"
             >
               <Plus className="w-5 h-5" />
-              Add Transaction
+              <span className="hidden sm:inline">Add Transaction</span>
+              <span className="sm:hidden">Add</span>
             </button>
           </div>
         </div>
 
-        <div className="w-80">
+        <div className="w-full md:w-80">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden sticky top-20">
-            <div className="bg-indigo-600 text-white px-4 py-3 flex items-center justify-between">
+            <div className="bg-indigo-600 text-white px-3 py-2 md:px-4 md:py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5" />
-                <span className="font-bold">Quick Add</span>
+                <Zap className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="font-bold text-sm md:text-base">Quick Add</span>
               </div>
               <button
                 onClick={() => setShowTemplateForm(!showTemplateForm)}

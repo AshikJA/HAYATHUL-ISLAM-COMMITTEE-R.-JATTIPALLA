@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Wallet,
-  LogOut,
-  ArrowLeft,
-  Plus,
-  Pencil,
-  Trash2
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Plus, Pencil, Trash2, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { AuthContext } from '../context/AuthContext';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 function ViewSingleMonthPage() {
   const { year, month } = useParams();
@@ -127,12 +122,65 @@ function ViewSingleMonthPage() {
     }).format(amount);
   };
 
+  const formatNumber = (amount) => {
+    const num = Math.round(amount);
+    return num.toString();
+  };
+
   const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString('en-GB', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
     });
+  };
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    
+    const pdfTotalIncome = transactions
+      .filter(t => t.type === 'Income')
+      .reduce((acc, t) => acc + t.amount, 0);
+    
+    const pdfTotalExpenses = transactions
+      .filter(t => t.type === 'Expense')
+      .reduce((acc, t) => acc + t.amount, 0);
+    
+    const pdfBalance = pdfTotalIncome - pdfTotalExpenses;
+    
+    doc.setFontSize(16);
+    doc.text(`HAYATHUL ISLAM COMMITTEE(R.) JATTIPALLA, SULLIA, D.K`, 14, 20);
+    
+    doc.setFontSize(14);
+    doc.text(`${monthName} ${year} - Cash Book`, 14, 30);
+    
+    const tableData = transactions.map(t => [
+      formatDate(t.date),
+      t.description,
+      t.type === 'Income' ? formatNumber(t.amount) : '-',
+      t.type === 'Expense' ? formatNumber(t.amount) : '-'
+    ]);
+
+    autoTable(doc, {
+      startY: 40,
+      head: [['Date', 'Particulars', 'Income', 'Expense']],
+      body: tableData,
+      foot: [['', 'TOTAL', formatNumber(pdfTotalIncome), formatNumber(pdfTotalExpenses)]],
+      footStyles: { fillColor: [79, 70, 229] },
+      columnStyles: {
+        0: { cellWidth: 30 },
+        1: { cellWidth: 'auto' },
+        2: { halign: 'right', cellWidth: 35 },
+        3: { halign: 'right', cellWidth: 35 }
+      }
+    });
+
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(14);
+    doc.text(`Balance: ${formatNumber(pdfBalance)}`, 14, finalY);
+    
+    const filename = `CashBook_${monthName}_${year}.pdf`;
+    doc.save(filename);
   };
 
   if (!user) {
@@ -153,10 +201,10 @@ function ViewSingleMonthPage() {
   return (
     <div className="min-h-screen bg-slate-100">
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
+      <main className="max-w-5xl mx-auto px-2 py-4 md:px-4 md:py-6">
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="bg-indigo-600 text-white px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="bg-indigo-600 text-white px-3 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('/summary')}
                 className="p-2 hover:bg-white/20 rounded-lg transition-all"
@@ -168,23 +216,32 @@ function ViewSingleMonthPage() {
                 <p className="text-sm opacity-80">Transactions</p>
               </div>
             </div>
-            <div>
-              <p className="text-sm opacity-80">Balance</p>
-              <p className={`text-2xl font-bold ${balance >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
-                {formatCurrency(balance)}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm opacity-80">Income / Expenses</p>
-              <p className="text-lg font-bold">
-                <span className="text-emerald-300">{formatCurrency(totalIncome)}</span>
-                {' / '}
-                <span className="text-rose-300">{formatCurrency(totalExpenses)}</span>
-              </p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <div>
+                <p className="text-xs md:text-sm opacity-80">Balance</p>
+                <p className={`text-lg md:text-2xl font-bold ${balance >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
+                  {formatCurrency(balance)}
+                </p>
+              </div>
+              <div className="text-left">
+                <p className="text-xs md:text-sm opacity-80">Income / Expenses</p>
+                <p className="text-sm md:text-lg font-bold">
+                  <span className="text-emerald-300">{formatCurrency(totalIncome)}</span>
+                  {' / '}
+                  <span className="text-rose-300">{formatCurrency(totalExpenses)}</span>
+                </p>
+              </div>
+              <button
+                onClick={downloadPDF}
+                className="flex items-center gap-2 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all"
+              >
+                <Download className="w-4 h-4" />
+                <span className="text-sm font-medium">PDF</span>
+              </button>
             </div>
           </div>
 
-          <div className="border-b border-slate-200 bg-slate-50">
+          <div className="border-b border-slate-200 bg-slate-50 hidden md:block">
             <div className="grid grid-cols-12 gap-2 px-4 py-3 text-sm font-semibold text-slate-600">
               <div className="col-span-2">Date</div>
               <div className="col-span-5">Particulars</div>
@@ -195,22 +252,22 @@ function ViewSingleMonthPage() {
           </div>
 
           {showForm && (
-            <form onSubmit={handleSubmit} className="border-b border-slate-200 bg-teal-50 px-4 py-3">
+            <form onSubmit={handleSubmit} className="border-b border-slate-200 bg-teal-50 px-2 py-2 md:px-4 md:py-3">
               <div className="grid grid-cols-12 gap-2 items-center">
-                <div className="col-span-2">
+                <div className="col-span-12 md:col-span-2">
                   <input
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm"
+                    className="w-full px-2 py-2 md:px-3 md:py-2 bg-white border border-slate-300 rounded-lg text-sm"
                     required
                   />
                 </div>
-                <div className="col-span-5 flex gap-2">
+                <div className="col-span-12 md:col-span-5 flex flex-col md:flex-row gap-2">
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    className="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm"
+                    className="px-2 py-2 md:px-3 md:py-2 bg-white border border-slate-300 rounded-lg text-sm"
                   >
                     <option value="Income">Income</option>
                     <option value="Expense">Expense</option>
@@ -220,27 +277,27 @@ function ViewSingleMonthPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Description"
-                    className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm"
+                    className="flex-1 px-2 py-2 md:px-3 md:py-2 bg-white border border-slate-300 rounded-lg text-sm"
                     required
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-12 md:col-span-2">
                   <input
                     type="number"
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                     placeholder="0"
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-right"
+                    className="w-full px-2 py-2 md:px-3 md:py-2 bg-white border border-slate-300 rounded-lg text-sm text-right"
                     required
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="hidden md:block col-span-2">
                   <div className="px-3 py-2 bg-slate-200 rounded-lg text-sm text-right text-slate-500">-</div>
                 </div>
-                <div className="col-span-1 flex gap-1">
+                <div className="col-span-12 md:col-span-1 flex gap-1">
                   <button
                     type="submit"
-                    className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-teal-700"
+                    className="flex-1 md:flex-none px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-teal-700"
                   >
                     {editingId ? 'Edit' : 'Add'}
                   </button>
@@ -271,17 +328,31 @@ function ViewSingleMonthPage() {
               transactions.map((transaction, index) => (
                 <div 
                   key={transaction._id}
-                  className={`grid grid-cols-12 gap-2 px-4 py-3 border-b border-slate-100 hover:bg-slate-50 ${
+                  className={`p-3 md:p-0 md:grid md:grid-cols-12 md:gap-2 md:px-4 md:py-3 border-b border-slate-100 hover:bg-slate-50 ${
                     index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'
                   }`}
                 >
-                  <div className="col-span-2 text-sm text-slate-600">
+                  <div className="md:col-span-2 text-sm text-slate-600 mb-1 md:mb-0">
                     {formatDate(transaction.date)}
                   </div>
-                  <div className="col-span-5 text-sm font-medium text-slate-700">
-                    {transaction.description}
+                  <div className="md:col-span-5 text-sm font-medium text-slate-700 mb-1 md:mb-0 flex items-center justify-between">
+                    <span>{transaction.description}</span>
+                    <div className="md:hidden flex gap-1">
+                      <button
+                        onClick={() => handleEdit(transaction)}
+                        className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(transaction._id)}
+                        className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="col-span-2 text-right text-sm">
+                  <div className="md:col-span-2 md:text-right text-sm mb-1 md:mb-0">
                     {transaction.type === 'Income' ? (
                       <span className="text-emerald-500 font-semibold">
                         {formatCurrency(transaction.amount)}
@@ -290,7 +361,7 @@ function ViewSingleMonthPage() {
                       <span className="text-slate-300">-</span>
                     )}
                   </div>
-                  <div className="col-span-2 text-right text-sm">
+                  <div className="md:col-span-2 md:text-right text-sm mb-1 md:mb-0">
                     {transaction.type === 'Expense' ? (
                       <span className="text-rose-500 font-semibold">
                         {formatCurrency(transaction.amount)}
@@ -299,7 +370,7 @@ function ViewSingleMonthPage() {
                       <span className="text-slate-300">-</span>
                     )}
                   </div>
-                  <div className="col-span-1 flex gap-1 justify-center">
+                  <div className="hidden md:flex md:col-span-1 gap-1 justify-center">
                     <button
                       onClick={() => handleEdit(transaction)}
                       className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
@@ -318,8 +389,8 @@ function ViewSingleMonthPage() {
             )}
           </div>
 
-          <div className="bg-slate-100 border-t-2 border-indigo-600 px-4 py-3">
-            <div className="grid grid-cols-12 gap-2 text-sm font-bold text-slate-700">
+          <div className="bg-slate-100 border-t-2 border-indigo-600 px-3 py-2 md:px-4 md:py-3">
+            <div className="grid grid-cols-12 gap-2 text-xs md:text-sm font-bold text-slate-700">
               <div className="col-span-2">TOTAL</div>
               <div className="col-span-5"></div>
               <div className="col-span-2 text-right text-emerald-500">{formatCurrency(totalIncome)}</div>
@@ -342,7 +413,8 @@ function ViewSingleMonthPage() {
             className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-teal-700 shadow-lg transition-all"
           >
             <Plus className="w-5 h-5" />
-            Add Transaction
+            <span className="hidden sm:inline">Add Transaction</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </main>

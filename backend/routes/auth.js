@@ -19,7 +19,7 @@ router.post('/register', validate(schemas.register), async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET || 'finance-tracker-secret-key',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
@@ -51,7 +51,7 @@ router.post('/login', validate(schemas.login), async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET || 'finance-tracker-secret-key',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 

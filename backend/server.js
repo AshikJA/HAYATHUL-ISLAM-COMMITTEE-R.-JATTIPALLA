@@ -2,8 +2,20 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const rateLimit = require('express-rate-limit');
 
 dotenv.config();
+
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET is not defined in .env file');
+  process.exit(1);
+}
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { message: 'Too many requests, please try again later' }
+});
 
 const authRoutes = require('./routes/auth');
 const transactionRoutes = require('./routes/transactions');
@@ -14,6 +26,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/api', apiLimiter);
 
 const User = require('./models/User');
 
