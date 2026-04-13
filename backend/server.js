@@ -6,22 +6,6 @@ const rateLimit = require('express-rate-limit');
 
 dotenv.config();
 
-if (!process.env.JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET is not defined in .env file');
-  process.exit(1);
-}
-
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,//15 minutes
-  max: 100,
-  message: { message: 'Too many requests, please try again later' }
-});
-
-const authRoutes = require('./routes/auth');
-const transactionRoutes = require('./routes/transactions');
-const summaryRoutes = require('./routes/summary');
-const templateRoutes = require('./routes/templates');
-
 const app = express();
 
 const corsOptions = {
@@ -43,6 +27,22 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET is not defined in .env file');
+  process.exit(1);
+}
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,//15 minutes
+  max: 100,
+  message: { message: 'Too many requests, please try again later' }
+});
+
+const authRoutes = require('./routes/auth');
+const transactionRoutes = require('./routes/transactions');
+const summaryRoutes = require('./routes/summary');
+const templateRoutes = require('./routes/templates');
 app.use(express.json());
 app.use('/api', apiLimiter);
 
