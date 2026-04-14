@@ -18,7 +18,7 @@ function Summary() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/api/login');
+      navigate('/login');
       return;
     }
     fetchSummary();
@@ -27,7 +27,7 @@ function Summary() {
   const fetchSummary = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/summary/${year}`);
+      const response = await axios.get(`${API_URL}/summary/${year}`);
       setSummary(response.data.summary);
       setGrandTotal(response.data.grandTotal);
     } catch (err) {
@@ -47,7 +47,7 @@ function Summary() {
   };
 
   if (!user) {
-    navigate('/api/login');
+    navigate('/login');
     return null;
   }
 
