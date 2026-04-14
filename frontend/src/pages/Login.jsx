@@ -14,7 +14,7 @@ function Login() {
   const navigate = useNavigate();
 
   if (user) {
-    return <Navigate to="/transactions" />;
+    return <Navigate to="/api/transactions" />;
   }
 
   const handleSubmit = async (e) => {
@@ -28,7 +28,7 @@ function Login() {
       } else {
         await register(email, password);
       }
-      navigate('/transactions');
+      navigate('/api/transactions');
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred');
     } finally {

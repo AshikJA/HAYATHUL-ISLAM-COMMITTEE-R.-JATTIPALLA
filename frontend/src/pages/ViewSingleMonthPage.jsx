@@ -42,7 +42,7 @@ function ViewSingleMonthPage() {
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/transactions`);
+      const response = await axios.get(`${API_URL}/api/transactions`);
       const allTransactions = response.data;
       
       const filtered = allTransactions.filter(t => {
@@ -68,9 +68,9 @@ function ViewSingleMonthPage() {
       };
 
       if (editingId) {
-        await axios.put(`${API_URL}/transactions/${editingId}`, payload);
+        await axios.put(`${API_URL}/api/transactions/${editingId}`, payload);
       } else {
-        await axios.post(`${API_URL}/transactions`, payload);
+        await axios.post(`${API_URL}/api/transactions`, payload);
       }
 
       resetForm();
@@ -95,7 +95,7 @@ function ViewSingleMonthPage() {
     if (!window.confirm('Delete this transaction?')) return;
     
     try {
-      await axios.delete(`${API_URL}/transactions/${id}`);
+      await axios.delete(`${API_URL}/api/transactions/${id}`);
       fetchTransactions();
     } catch (err) {
       console.error('Failed to delete');

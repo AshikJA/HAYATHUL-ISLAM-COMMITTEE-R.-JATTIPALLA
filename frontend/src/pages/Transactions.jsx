@@ -36,7 +36,7 @@ function Transactions() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate('/api/login');
       return;
     }
     fetchTransactions();
@@ -45,7 +45,7 @@ function Transactions() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await axios.get(`${API_URL}/transactions`);
+      const response = await axios.get(`${API_URL}/api/transactions`);
       setTransactions(response.data);
       calculateBalance(response.data);
     } catch (err) {
@@ -57,7 +57,7 @@ function Transactions() {
 
   const fetchTemplates = async () => {
     try {
-      const response = await axios.get(`${API_URL}/templates`);
+      const response = await axios.get(`${API_URL}/api/templates`);
       setTemplates(response.data);
     } catch (err) {
       console.error('Failed to fetch templates');
@@ -82,9 +82,9 @@ function Transactions() {
       };
 
       if (editingId) {
-        await axios.put(`${API_URL}/transactions/${editingId}`, payload);
+        await axios.put(`${API_URL}/api/transactions/${editingId}`, payload);
       } else {
-        await axios.post(`${API_URL}/transactions`, payload);
+        await axios.post(`${API_URL}/api/transactions`, payload);
       }
 
       resetForm();
@@ -104,9 +104,9 @@ function Transactions() {
       };
 
       if (editingTemplateId) {
-        await axios.put(`${API_URL}/templates/${editingTemplateId}`, payload);
+        await axios.put(`${API_URL}/api/templates/${editingTemplateId}`, payload);
       } else {
-        await axios.post(`${API_URL}/templates`, payload);
+        await axios.post(`${API_URL}/api/templates`, payload);
       }
 
       resetTemplateForm();
@@ -118,7 +118,7 @@ function Transactions() {
 
   const handleUseTemplate = async (templateId) => {
     try {
-      await axios.post(`${API_URL}/templates/${templateId}/use`);
+      await axios.post(`${API_URL}/api/templates/${templateId}/use`);
       fetchTransactions();
     } catch (err) {
       console.error('Failed to use template');
@@ -150,7 +150,7 @@ function Transactions() {
     if (!window.confirm('Delete this transaction?')) return;
     
     try {
-      await axios.delete(`${API_URL}/transactions/${id}`);
+      await axios.delete(`${API_URL}/api/transactions/${id}`);
       fetchTransactions();
     } catch (err) {
       setError('Failed to delete transaction');
@@ -161,7 +161,7 @@ function Transactions() {
     if (!window.confirm('Delete this template?')) return;
     
     try {
-      await axios.delete(`${API_URL}/templates/${id}`);
+      await axios.delete(`${API_URL}/api/templates/${id}`);
       fetchTemplates();
     } catch (err) {
       console.error('Failed to delete template');
@@ -207,7 +207,7 @@ function Transactions() {
   };
 
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/api/login" />;
   }
 
   const totalIncome = transactions
