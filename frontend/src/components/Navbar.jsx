@@ -13,7 +13,7 @@ function Navbar() {
         <div className="max-w-7xl mx-auto px-2 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold md:text-xl">HAYATHUL ISLAM COMMITTEE(R.) JATTIPALLA, SULLIA, D.K</span>
+              <span className="text-sm font-bold md:text-xl">Finance Tracker</span>
             </div>
 
             <button
